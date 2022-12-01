@@ -16,7 +16,7 @@ class AppFixtures extends Fixture
         // Load Users
         UserFactory::new()
             ->withAttributes([
-                'email' => 'superadmin@example.com',
+                'email' => 'superadmin@admin.com',
                 'plainPassword' => 'adminpass',
             ])
             ->promoteRole('ROLE_SUPER_ADMIN')
@@ -24,7 +24,7 @@ class AppFixtures extends Fixture
 
         UserFactory::new()
             ->withAttributes([
-                'email' => 'admin@example.com',
+                'email' => 'admin@admin.com',
                 'plainPassword' => 'adminpass',
             ])
             ->promoteRole('ROLE_ADMIN')
@@ -32,7 +32,7 @@ class AppFixtures extends Fixture
 
         UserFactory::new()
             ->withAttributes([
-                'email' => 'moderatoradmin@example.com',
+                'email' => 'moderatoradmin@admin.com',
                 'plainPassword' => 'adminpass',
             ])
             ->promoteRole('ROLE_MODERATOR')
@@ -40,11 +40,11 @@ class AppFixtures extends Fixture
 
         UserFactory::new()
             ->withAttributes([
-                'email' => 'tisha@symfonycasts.com',
-                'plainPassword' => 'tishapass',
-                'firstName' => 'Tisha',
+                'email' => 'fcomarcet1@gmail.com',
+                'plainPassword' => 'password',
+                'firstName' => 'Frank',
                 'lastName' => 'The Cat',
-                'avatar' => 'tisha.png',
+                'avatar' => 'frank.png',
             ])
             ->create();
 
