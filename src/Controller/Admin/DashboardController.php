@@ -6,8 +6,11 @@ use App\Entity\Answer;
 use App\Entity\Question;
 use App\Entity\Topic;
 use App\Entity\User;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Response;
@@ -60,5 +63,17 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Answers', 'fas fa-comments', Answer::class);
         yield MenuItem::linkToCrud('Topics', 'fas fa-folder', Topic::class);
         yield MenuItem::linkToCrud('Users', 'fas fa-users', User::class);
+    }
+
+    public function configureActions(): Actions
+    {
+        // Adding an Action Globally
+        // By default from parent: PAGE_INDEX --> NEW, EDIT, DELETE
+        //                         PAGE_DETAIL --> EDIT, INDEX, DELETE
+        //                         PAGE_EDIT --> SAVE_AND_RETURN, SAVE_AND_CONTINUE
+        //                         PAGE_NEW --> SAVE_AND_RETURN, SAVE_AND_ADD_ANOTHER
+        // we can add more actions to for ex: PAGE_INDEX, Action::DETAIL
+        return parent::configureActions()
+            ->add(Crud::PAGE_INDEX, Action::DETAIL);
     }
 }
