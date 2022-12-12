@@ -11,14 +11,16 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\UserMenu;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class DashboardController extends AbstractDashboardController
 {
-    #[Route('/admin', name: 'admin')]
+    #[Route('/admin', name: 'app_admin')]
     #[IsGranted('ROLE_ADMIN')]
     public function index(): Response
     {
@@ -56,7 +58,7 @@ class DashboardController extends AbstractDashboardController
 
     public function configureMenuItems(): iterable
     {
-        yield MenuItem::linkToDashboard('Home', 'fa fa-home');
+        yield MenuItem::linkToUrl('Homepage', 'fas fa-home', $this->generateUrl('app_admin'));
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-dashboard');
         // yield MenuItem::linkToCrud('The Label', 'fas fa-list', EntityClass::class);
         yield MenuItem::linkToCrud('Questions', 'fa fa-question-circle', Question::class);
@@ -76,4 +78,24 @@ class DashboardController extends AbstractDashboardController
         return parent::configureActions()
             ->add(Crud::PAGE_INDEX, Action::DETAIL);
     }
+
+    /**
+     * @param UserInterface $user
+     * @return UserMenu
+     * @throws \Exception
+     */
+    public function configureUserMenu(UserInterface $user): UserMenu
+    {
+        if (!$user instanceof User) {
+            throw new \Exception('Wrong user');
+        }
+
+        return parent::configureUserMenu($user)
+            ->setAvatarUrl($user->getAvatarUrl())
+            ->addMenuItems([
+                MenuItem::linkToUrl('My Profile', 'fas fa-user', $this->generateUrl('app_profile_show'))
+            ]);
+    }
+
+
 }
