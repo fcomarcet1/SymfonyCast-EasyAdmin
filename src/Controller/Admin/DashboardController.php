@@ -7,6 +7,7 @@ use App\Entity\Question;
 use App\Entity\Topic;
 use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -95,6 +96,17 @@ class DashboardController extends AbstractDashboardController
             ->addMenuItems([
                 MenuItem::linkToUrl('My Profile', 'fas fa-user', $this->generateUrl('app_profile_show'))
             ]);
+    }
+
+    public function configureAssets(): Assets
+    {
+        return parent::configureAssets()
+            //->addCssFile('css/admin.css')
+            //->addJsFile('js/admin.js');
+            //->addHtmlContentToBody('<script>console.log("Hello from EasyAdmin!")</script>');
+            //->addHtmlContentToHead('<script>console.log("Hello from EasyAdmin!")</script>');
+            ->addWebpackEncoreEntry('admin');
+            
     }
 
 
