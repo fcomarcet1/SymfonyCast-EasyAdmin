@@ -22,14 +22,15 @@ class UserCrudController extends AbstractCrudController
     {
 
         yield EmailField::new('email');
-        yield TextField::new('firstName');
-        yield TextField::new('lastName');
-        yield TextField::new('fullName');
+        yield TextField::new('firstName')->onlyOnForms();;
+        yield TextField::new('lastName')->onlyOnForms();
+        //yield TextField::new('fullName')->onlyOnIndex();
+        yield TextField::new('fullName')->hideOnForm();;
         yield ArrayField::new('roles');
         yield BooleanField::new('enabled');
             //->renderAsSwitch(false);
-        yield DateField::new('createdAt');
-        yield DateField::new('updatedAt');
+        yield DateField::new('createdAt')->hideOnForm();;
+        yield DateField::new('updatedAt')->hideOnForm();;
         /*return [
             IdField::new('id'),
             TextField::new('title'),
