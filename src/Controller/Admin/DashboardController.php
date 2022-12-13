@@ -106,7 +106,7 @@ class DashboardController extends AbstractDashboardController
             //->addHtmlContentToBody('<script>console.log("Hello from EasyAdmin!")</script>');
             //->addHtmlContentToHead('<script>console.log("Hello from EasyAdmin!")</script>');
             ->addWebpackEncoreEntry('admin');
-            
+
     }
 
 
