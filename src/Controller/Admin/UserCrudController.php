@@ -9,6 +9,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
@@ -24,6 +25,11 @@ class UserCrudController extends AbstractCrudController
     {
 
         yield EmailField::new('email');
+        yield ImageField::new('avatar')
+            ->setBasePath('uploads/avatars')
+            ->setUploadDir('public/uploads/avatars')
+            ->setUploadedFileNamePattern('[slug]-[timestamp].[extension]')
+        ;
         yield TextField::new('firstName')->onlyOnForms();
         yield TextField::new('lastName')->onlyOnForms();
         //yield TextField::new('fullName')->onlyOnIndex();
