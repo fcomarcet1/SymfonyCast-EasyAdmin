@@ -21,12 +21,17 @@ class QuestionCrudController extends AbstractCrudController
     {
         yield IdField::new('id')
             ->onlyOnIndex();
+
         yield Field::new('name');
+
         yield AssociationField::new('topic');
+
         yield TextareaField::new('question')
             ->hideOnIndex();
+
         yield Field::new('votes', 'Total Votes')
             ->setTextAlign('center');
+
         yield AssociationField::new('askedBy')
             ->formatValue(static function ($value, Question $question): ?string {
                 if (!$user = $question->getAskedBy()) {
@@ -43,8 +48,18 @@ class QuestionCrudController extends AbstractCrudController
             // select. This means that if you have even a hundred users in your database,
             // this page is going to start slowing down, and eventually, explode. we can use ->autocomplete()
             ->autocomplete();
+
+        yield AssociationField::new('answers')
+            //->setFormTypeOption('choice_label', 'id')
+            //setting by_reference to false, if an answer is removed from this question, it will force the system to
+            // call the removeAnswer() method that I have in Question
+            ->setFormTypeOption('by_reference', false)
+            ->setTextAlign('center')
+            ->autocomplete();
+
         yield Field::new('createdAt')
             ->hideOnForm();
+
         yield Field::new('updatedAt')
             ->hideOnForm();
     }

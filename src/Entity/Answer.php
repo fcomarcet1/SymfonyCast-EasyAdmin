@@ -90,4 +90,9 @@ class Answer
 
         return $this;
     }
+
+    public function __toString(): String
+    {
+        return (string)$this->getAnswer();
+    }
 }
