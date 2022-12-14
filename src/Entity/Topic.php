@@ -72,4 +72,9 @@ class Topic
 
         return $this;
     }
+
+    public function __toString(): String
+    {
+        return (string)$this->name;
+    }
 }
