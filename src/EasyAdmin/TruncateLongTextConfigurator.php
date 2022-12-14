@@ -4,14 +4,18 @@ declare(strict_types=1);
 
 namespace App\EasyAdmin;
 
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Contracts\Field\FieldConfiguratorInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
+use function Symfony\Component\String\u;
 
+// I want to set a max length for every TextareaField across our entire app.
 class TruncateLongTextConfigurator implements FieldConfiguratorInterface
 {
+    private const MAX_LENGTH = 25;
 
     public function supports(FieldDto $field, EntityDto $entityDto): bool
     {
@@ -20,6 +24,18 @@ class TruncateLongTextConfigurator implements FieldConfiguratorInterface
 
     public function configure(FieldDto $field, EntityDto $entityDto, AdminContext $context): void
     {
-        dd($field);
+        $crud = $context->getCrud();
+
+        if ($crud?->getCurrentPage() === Crud::PAGE_DETAIL) {
+            return;
+        }
+
+        if (strlen($field->getFormattedValue()) <= self::MAX_LENGTH) {
+            return;
+        }
+
+        $truncatedValue = u($field->getFormattedValue())
+            ->truncate(self::MAX_LENGTH, '...', false);
+        $field->setFormattedValue($truncatedValue);
     }
 }
