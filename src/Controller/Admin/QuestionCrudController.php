@@ -92,7 +92,10 @@ class QuestionCrudController extends AbstractCrudController
             ->hideOnForm();
 
         yield Field::new('updatedAt')
+            ->onlyOnDetail()
             ->hideOnForm();
+        yield AssociationField::new('updatedBy')
+            ->onlyOnDetail();
     }
 
     public function configureCrud(Crud $crud): Crud
