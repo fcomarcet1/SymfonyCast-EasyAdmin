@@ -82,7 +82,8 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToUrl('Homepage', 'fas fa-home', $this->generateUrl('app_admin'));
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-dashboard');
         // yield MenuItem::linkToCrud('The Label', 'fas fa-list', EntityClass::class);
-        yield MenuItem::linkToCrud('Questions', 'fa fa-question-circle', Question::class);
+        yield MenuItem::linkToCrud('Questions', 'fa fa-question-circle', Question::class)
+            ->setPermission('ROLE_MODERATOR');
         yield MenuItem::linkToCrud('Answers', 'fas fa-comments', Answer::class);
         yield MenuItem::linkToCrud('Topics', 'fas fa-folder', Topic::class);
         yield MenuItem::linkToCrud('Users', 'fas fa-users', User::class);
