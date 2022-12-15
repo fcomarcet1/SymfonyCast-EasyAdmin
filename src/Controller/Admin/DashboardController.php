@@ -132,7 +132,9 @@ class DashboardController extends AbstractDashboardController
     public function configureCrud(): Crud
     {
         return parent::configureCrud()
-            ->setDefaultSort(['id' => 'DESC',]);
+            ->setDefaultSort(['id' => 'DESC',])
+            ->overrideTemplate('crud/field/id', 'admin/field/id_with_icon.html.twig')
+        ;
     }
 
     private function createChart(): Chart
