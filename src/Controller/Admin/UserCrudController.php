@@ -64,7 +64,9 @@ class UserCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->showEntityActionsInlined();
+            ->showEntityActionsInlined()
+            ->setEntityPermission('ADMIN_USER_EDIT') // ADMIN_USER_EDIT is a custom permission not is a ROLE
+            ;
     }
 
 

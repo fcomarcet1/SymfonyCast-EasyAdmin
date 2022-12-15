@@ -59,10 +59,11 @@ class QuestionCrudController extends AbstractCrudController
             ->setTextAlign('center')
             ->setTemplatePath('admin/field/votes.html.twig');*/
         yield VotesField::new('votes', 'Total Votes')
-            ->setTextAlign('center');
+            ->setTextAlign('center')
+            ->setPermission('ROLE_SUPER_ADMIN');
         yield AssociationField::new('askedBy')
-            ->formatValue(static function ($value, Question $question): ?string {
-                if (!$user = $question->getAskedBy()) {
+            ->formatValue(static function ($value, ?Question $question): ?string {
+                if (!$user = $question?->getAskedBy()) {
                     return null;
                 }
                 return sprintf('%s&nbsp;(%s)', $user->getEmail(), $user->getQuestions()->count());
