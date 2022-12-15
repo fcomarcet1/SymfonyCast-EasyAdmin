@@ -204,4 +204,10 @@ class Question
     {
         $this->updatedBy = $updatedBy;
     }
+
+    public function __toString(): string
+    {
+        return (string)$this->getName();
+    }
+
 }
