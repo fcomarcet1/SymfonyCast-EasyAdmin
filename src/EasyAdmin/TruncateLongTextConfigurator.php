@@ -30,7 +30,7 @@ class TruncateLongTextConfigurator implements FieldConfiguratorInterface
             return;
         }
 
-        if (strlen($field->getFormattedValue()) <= self::MAX_LENGTH) {
+        if (null === $field->getFormattedValue() || strlen($field->getFormattedValue()) <= self::MAX_LENGTH) {
             return;
         }
 
