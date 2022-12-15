@@ -12,6 +12,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 
 class QuestionCrudController extends AbstractCrudController
 {
@@ -35,6 +36,8 @@ class QuestionCrudController extends AbstractCrudController
                 $pageName !== Crud::PAGE_NEW
             );;
         yield AssociationField::new('topic');
+        /*yield TextEditorField::new('question')
+            ->hideOnIndex();*/
         yield TextareaField::new('question')
             ->hideOnIndex();
        /* yield IntegerField::new('votes', 'Total Votes')
