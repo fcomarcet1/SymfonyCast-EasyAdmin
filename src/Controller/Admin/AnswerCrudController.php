@@ -22,7 +22,8 @@ class AnswerCrudController extends AbstractCrudController
             ->onlyOnIndex();
         yield Field::new('answer');
         yield IntegerField::new('votes', 'Total Votes')
-            ->setTextAlign('center');
+            ->setTextAlign('center')
+            ->setTemplatePath('admin/field/votes.html.twig');
         yield AssociationField::new('question')
             ->hideOnIndex();
         yield AssociationField::new('answeredBy');
