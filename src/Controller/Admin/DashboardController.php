@@ -6,6 +6,7 @@ use App\Entity\Answer;
 use App\Entity\Question;
 use App\Entity\Topic;
 use App\Entity\User;
+use App\Repository\QuestionRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
@@ -18,9 +19,19 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\UX\Chartjs\Builder\ChartBuilderInterface;
+use Symfony\UX\Chartjs\Model\Chart;
 
 class DashboardController extends AbstractDashboardController
 {
+    private QuestionRepository $questionRepository;
+    private ChartBuilderInterface $chartBuilder;
+    public function __construct(QuestionRepository $questionRepository, ChartBuilderInterface $chartBuilder)
+    {
+        $this->questionRepository = $questionRepository;
+        $this->chartBuilder = $chartBuilder;
+    }
+
     #[Route('/admin', name: 'app_admin')]
     #[IsGranted('ROLE_ADMIN')]
     public function index(): Response
@@ -47,7 +58,16 @@ class DashboardController extends AbstractDashboardController
         // (tip: it's easier if your template extends from @EasyAdmin/page/content.html.twig)
         //
         // return $this->render('some/path/my-dashboard.html.twig');
-        return $this->render('admin/index.html.twig');
+
+
+        $latestQuestions = $this->questionRepository->findLatest();
+        $topVoted = $this->questionRepository->findTopVoted();
+
+        return $this->render('admin/index.html.twig', [
+            'latestQuestions' => $latestQuestions,
+            'topVoted' => $topVoted,
+            'chart' => $this->createChart(),
+        ]);
 
     }
 
@@ -113,6 +133,31 @@ class DashboardController extends AbstractDashboardController
     {
         return parent::configureCrud()
             ->setDefaultSort(['id' => 'DESC',]);
+    }
+
+    private function createChart(): Chart
+    {
+        $chart = $this->chartBuilder->createChart(Chart::TYPE_LINE);
+        $chart->setData([
+            'labels' => ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+            'datasets' => [
+                [
+                    'label' => 'My First dataset',
+                    'backgroundColor' => 'rgb(255, 99, 132)',
+                    'borderColor' => 'rgb(255, 99, 132)',
+                    'data' => [0, 10, 5, 2, 20, 30, 45],
+                ],
+            ],
+        ]);
+        $chart->setOptions([
+            'scales' => [
+                'y' => [
+                    'suggestedMin' => 0,
+                    'suggestedMax' => 100,
+                ],
+            ],
+        ]);
+        return $chart;
     }
 
 
