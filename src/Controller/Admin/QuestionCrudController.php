@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use App\EasyAdmin\VotesField;
 use App\Entity\Question;
 use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -9,6 +10,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 
 class QuestionCrudController extends AbstractCrudController
@@ -34,7 +36,10 @@ class QuestionCrudController extends AbstractCrudController
         yield AssociationField::new('topic');
         yield TextareaField::new('question')
             ->hideOnIndex();
-        yield Field::new('votes', 'Total Votes')
+       /* yield IntegerField::new('votes', 'Total Votes')
+            ->setTextAlign('center')
+            ->setTemplatePath('admin/field/votes.html.twig');*/
+        yield VotesField::new('votes', 'Total Votes')
             ->setTextAlign('center');
         yield AssociationField::new('askedBy')
             ->formatValue(static function ($value, Question $question): ?string {
