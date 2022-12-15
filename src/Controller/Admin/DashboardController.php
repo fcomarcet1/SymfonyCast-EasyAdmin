@@ -81,16 +81,32 @@ class DashboardController extends AbstractDashboardController
     {
         yield MenuItem::linkToUrl('Homepage', 'fas fa-home', $this->generateUrl('app_admin'));
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-dashboard');
+        yield MenuItem::section('Content');
         // yield MenuItem::linkToCrud('The Label', 'fas fa-list', EntityClass::class);
-        yield MenuItem::linkToCrud('Questions', 'fa fa-question-circle', Question::class)
+        /*yield MenuItem::linkToCrud('Questions', 'fa fa-question-circle', Question::class)
             ->setPermission('ROLE_MODERATOR')
             ->setController(QuestionCrudController::class);
         yield MenuItem::linkToCrud('Pending Approval', 'far fa-question-circle', Question::class)
             ->setPermission('ROLE_MODERATOR')
-            ->setController(QuestionPendingApprovalCrudController::class);;
+            ->setController(QuestionPendingApprovalCrudController::class);*/
+        yield MenuItem::subMenu('Questions', 'fa fa-question-circle')
+            ->setSubItems([
+                MenuItem::linkToCrud('All', 'fa fa-list', Question::class)
+                    ->setController(QuestionCrudController::class)
+                    ->setPermission('ROLE_MODERATOR'),
+                MenuItem::linkToCrud('Pending Approval', 'fa fa-warning', Question::class)
+                    ->setPermission('ROLE_MODERATOR')
+                    ->setController(QuestionPendingApprovalCrudController::class),
+            ]);
         yield MenuItem::linkToCrud('Answers', 'fas fa-comments', Answer::class);
         yield MenuItem::linkToCrud('Topics', 'fas fa-folder', Topic::class);
+        yield MenuItem::section('Users');
         yield MenuItem::linkToCrud('Users', 'fas fa-users', User::class);
+        yield MenuItem::section('System');
+        yield MenuItem::section();
+        yield MenuItem::section('Others');
+        yield MenuItem::linkToUrl('StackOverflow', 'fab fa-stack-overflow', 'https://stackoverflow.com')
+            ->setLinkTarget('_blank');
     }
 
     public function configureActions(): Actions
