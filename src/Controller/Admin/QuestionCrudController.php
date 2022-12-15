@@ -39,7 +39,17 @@ class QuestionCrudController extends AbstractCrudController
         /*yield TextEditorField::new('question')
             ->hideOnIndex();*/
         yield TextareaField::new('question')
-            ->hideOnIndex();
+            ->hideOnIndex()
+            ->setFormTypeOptions([
+                'row_attr' => [
+                    'data-controller' => 'snarkdown',
+                ],
+                'attr' => [
+                    'data-snarkdown-target' => 'input',
+                    'data-action' => 'snarkdown#render',
+                ],
+            ])
+            ->setHelp('Preview:');
        /* yield IntegerField::new('votes', 'Total Votes')
             ->setTextAlign('center')
             ->setTemplatePath('admin/field/votes.html.twig');*/
