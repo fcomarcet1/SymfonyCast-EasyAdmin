@@ -24,7 +24,8 @@ class QuestionCrudController extends AbstractCrudController
     {
         yield IdField::new('id')
             ->onlyOnIndex();
-        yield Field::new('name');
+        yield Field::new('name')
+            ->setSortable(false); //Disabling Sorting on a Field
         yield Field::new('slug')
             ->hideOnIndex()
             // on the edit page... it's disabled. And if we go back to Questions... and create a new question...
@@ -72,5 +73,15 @@ class QuestionCrudController extends AbstractCrudController
         yield Field::new('updatedAt')
             ->hideOnForm();
     }
+
+    public function configureCrud(Crud $crud): Crud
+    {
+        return parent::configureCrud($crud)
+            ->setDefaultSort([
+                'askedBy.enabled' => 'DESC',
+                'createdAt' => 'DESC',
+            ]);
+    }
+
 
 }

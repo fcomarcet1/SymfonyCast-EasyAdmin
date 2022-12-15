@@ -109,5 +109,11 @@ class DashboardController extends AbstractDashboardController
 
     }
 
+    public function configureCrud(): Crud
+    {
+        return parent::configureCrud()
+            ->setDefaultSort(['id' => 'DESC',]);
+    }
+
 
 }
