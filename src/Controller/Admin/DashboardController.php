@@ -118,7 +118,14 @@ class DashboardController extends AbstractDashboardController
         //                         PAGE_NEW --> SAVE_AND_RETURN, SAVE_AND_ADD_ANOTHER
         // we can add more actions to for ex: PAGE_INDEX, Action::DETAIL
         return parent::configureActions()
-            ->add(Crud::PAGE_INDEX, Action::DETAIL);
+            ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->update(Crud::PAGE_DETAIL, Action::EDIT, static function (Action $action) {
+                return $action->setIcon('fa fa-edit');
+            })
+            ->update(Crud::PAGE_DETAIL, Action::INDEX, static function (Action $action) {
+                return $action->setIcon('fa fa-list');
+            })
+        ;
     }
 
     /**

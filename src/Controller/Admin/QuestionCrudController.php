@@ -179,26 +179,31 @@ class QuestionCrudController extends AbstractCrudController
                 });
                 return $action;
             })
+
+
             ->setPermission(Action::INDEX, 'ROLE_MODERATOR')
             ->setPermission(Action::DETAIL, 'ROLE_MODERATOR')
             ->setPermission(Action::EDIT, 'ROLE_MODERATOR')
             ->setPermission(Action::NEW, 'ROLE_SUPER_ADMIN')
             ->setPermission(Action::DELETE, 'ROLE_SUPER_ADMIN')
+
             ->add(Crud::PAGE_INDEX, $viewAction)
             ->add(Crud::PAGE_INDEX, $exportAction)
             //->add(Crud::PAGE_INDEX, $approveAction)
             ->add(Crud::PAGE_DETAIL, $viewAction)
-            ->add(Crud::PAGE_DETAIL, $approveAction);
-        /*$viewAction = function() {
-            return Action::new('view')
-                ->linkToUrl(function(Question $question) {
-                    return $this->generateUrl('app_question_show', [
-                        'slug' => $question->getSlug(),
-                    ]);
-                })
-                ->setIcon('fa fa-eye')
-                ->setLabel('View on site');
-        };*/
+            ->add(Crud::PAGE_DETAIL, $approveAction)
+
+            ->reorder(Crud::PAGE_DETAIL, [
+                'approve',
+                'view',
+                Action::EDIT,
+                Action::INDEX,
+                Action::DELETE,
+            ])
+        ;
+
+
+
 
     }
 
