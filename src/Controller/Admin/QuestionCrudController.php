@@ -111,6 +111,26 @@ class QuestionCrudController extends AbstractCrudController
 
     public function configureActions(Actions $actions): Actions
     {
+        $viewAction = Action::new('view')
+            ->linkToUrl(function(Question $question) {
+                return $this->generateUrl('app_question_show', [
+                    'slug' => $question->getSlug(),
+                ]);
+            })
+            ->addCssClass('btn btn-success')
+            ->setIcon('fa fa-eye')
+            ->setLabel('View on site');
+        /*$viewAction = Action::new('view')
+            ->linkToUrl(function(Question $question) {
+                return $this->generateUrl('app_question_show', [
+                    'slug' => $question->getSlug(),
+                ]);
+            })
+            ->addCssClass('btn btn-success')
+            ->setIcon('fa fa-eye')
+            ->setLabel('View on site')
+        ;*/
+
         return parent::configureActions($actions)
             // show the "delete" action only for not approved questions
             ->update(Crud::PAGE_INDEX, Action::DELETE, static function(Action $action) {
@@ -125,7 +145,21 @@ class QuestionCrudController extends AbstractCrudController
             ->setPermission(Action::DETAIL, 'ROLE_MODERATOR')
             ->setPermission(Action::EDIT, 'ROLE_MODERATOR')
             ->setPermission(Action::NEW, 'ROLE_SUPER_ADMIN')
-            ->setPermission(Action::BATCH_DELETE, 'ROLE_SUPER_ADMIN');
+            ->setPermission(Action::BATCH_DELETE, 'ROLE_SUPER_ADMIN')
+            ->add(Crud::PAGE_INDEX, $viewAction)
+            ->add(Crud::PAGE_DETAIL, $viewAction)
+            ;
+        /*$viewAction = function() {
+            return Action::new('view')
+                ->linkToUrl(function(Question $question) {
+                    return $this->generateUrl('app_question_show', [
+                        'slug' => $question->getSlug(),
+                    ]);
+                })
+                ->setIcon('fa fa-eye')
+                ->setLabel('View on site');
+        };*/
+
     }
 
     public function configureFilters(Filters $filters): Filters
