@@ -18,6 +18,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Factory\FilterFactory;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
+use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
@@ -51,8 +52,13 @@ class QuestionCrudController extends AbstractCrudController
     {
         yield IdField::new('id')
             ->onlyOnIndex();
+        yield FormField::addPanel('Basic Data')
+            ->collapsible()
+            ->setIcon('fas fa-info-circle');
         yield Field::new('name')
-            ->setSortable(false); //Disabling Sorting on a Field
+            ->setSortable(false) //Disabling Sorting on a Field
+            ->setColumns(5)
+        ;
         yield Field::new('slug')
             ->hideOnIndex()
             // on the edit page... it's disabled. And if we go back to Questions... and create a new question...
@@ -60,7 +66,9 @@ class QuestionCrudController extends AbstractCrudController
             ->setFormTypeOption(
                 'disabled',
                 $pageName !== Crud::PAGE_NEW
-            );;
+            )
+            ->setColumns(5)
+        ;
         yield AssociationField::new('topic');
         /*yield TextEditorField::new('question')
             ->hideOnIndex();*/
@@ -82,6 +90,12 @@ class QuestionCrudController extends AbstractCrudController
         yield VotesField::new('votes', 'Total Votes')
             ->setTextAlign('center')
             ->setPermission('ROLE_SUPER_ADMIN');
+
+        yield FormField::addPanel('Details')
+            ->collapsible()
+            ->setIcon('fa fa-info')
+            ->setHelp('Additional Details');
+
         yield AssociationField::new('askedBy')
             ->formatValue(static function ($value, ?Question $question): ?string {
                 if (!$user = $question?->getAskedBy()) {
@@ -113,8 +127,10 @@ class QuestionCrudController extends AbstractCrudController
         yield Field::new('updatedAt')
             ->onlyOnDetail()
             ->hideOnForm();
+
         yield AssociationField::new('updatedBy')
             ->onlyOnDetail();
+
     }
 
     public function configureCrud(Crud $crud): Crud
