@@ -5,28 +5,43 @@ namespace App\Controller\Admin;
 use App\EasyAdmin\VotesField;
 use App\Entity\Question;
 use App\Entity\User;
+use App\Service\CsvExporter;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Factory\FilterFactory;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 
 
 #[IsGranted('ROLE_MODERATOR')]
 class QuestionCrudController extends AbstractCrudController
 {
+
+    private AdminUrlGenerator $adminUrlGenerator;
+    private RequestStack $requestStack;
+    public function __construct(AdminUrlGenerator $adminUrlGenerator, RequestStack $requestStack)
+    {
+        $this->adminUrlGenerator = $adminUrlGenerator;
+        $this->requestStack = $requestStack;
+    }
+
+
     public static function getEntityFqcn(): string
     {
         return Question::class;
@@ -55,15 +70,15 @@ class QuestionCrudController extends AbstractCrudController
                 'row_attr' => [
                     'data-controller' => 'snarkdown',
                 ],
-                'attr' => [
+                'attr'     => [
                     'data-snarkdown-target' => 'input',
-                    'data-action' => 'snarkdown#render',
+                    'data-action'           => 'snarkdown#render',
                 ],
             ])
             ->setHelp('Preview:');
-       /* yield IntegerField::new('votes', 'Total Votes')
-            ->setTextAlign('center')
-            ->setTemplatePath('admin/field/votes.html.twig');*/
+        /* yield IntegerField::new('votes', 'Total Votes')
+             ->setTextAlign('center')
+             ->setTemplatePath('admin/field/votes.html.twig');*/
         yield VotesField::new('votes', 'Total Votes')
             ->setTextAlign('center')
             ->setPermission('ROLE_SUPER_ADMIN');
@@ -107,7 +122,7 @@ class QuestionCrudController extends AbstractCrudController
         return parent::configureCrud($crud)
             ->setDefaultSort([
                 'askedBy.enabled' => 'DESC',
-                'createdAt' => 'DESC',
+                'createdAt'       => 'DESC',
             ]);
     }
 
@@ -124,7 +139,7 @@ class QuestionCrudController extends AbstractCrudController
             ->setLabel('View on site')
         ;*/
         $viewAction = Action::new('view')
-            ->linkToUrl(function(Question $question) {
+            ->linkToUrl(function (Question $question) {
                 return $this->generateUrl('app_question_show', [
                     'slug' => $question->getSlug(),
                 ]);
@@ -143,10 +158,21 @@ class QuestionCrudController extends AbstractCrudController
                 return !$question->getIsApproved();
             });
 
+        $exportAction = Action::new('export')
+            ->linkToUrl(function () {
+                $request = $this->requestStack->getCurrentRequest();
+                return $this->adminUrlGenerator->setAll($request->query->all())
+                    ->setAction('export')
+                    ->generateUrl();
+            })
+            ->addCssClass('btn btn-success')
+            ->setIcon('fa fa-download')
+            ->createAsGlobalAction();
+
         return parent::configureActions($actions)
             // show the "delete" action only for not approved questions
-            ->update(Crud::PAGE_INDEX, Action::DELETE, static function(Action $action) {
-                $action->displayIf(static function (Question $question){
+            ->update(Crud::PAGE_INDEX, Action::DELETE, static function (Action $action) {
+                $action->displayIf(static function (Question $question) {
                     // always display, so we can try via the subscriber instead
                     return true;
                     //return !$question->getIsApproved();
@@ -157,12 +183,12 @@ class QuestionCrudController extends AbstractCrudController
             ->setPermission(Action::DETAIL, 'ROLE_MODERATOR')
             ->setPermission(Action::EDIT, 'ROLE_MODERATOR')
             ->setPermission(Action::NEW, 'ROLE_SUPER_ADMIN')
-            ->setPermission(Action::BATCH_DELETE, 'ROLE_SUPER_ADMIN')
+            ->setPermission(Action::DELETE, 'ROLE_SUPER_ADMIN')
             ->add(Crud::PAGE_INDEX, $viewAction)
+            ->add(Crud::PAGE_INDEX, $exportAction)
             //->add(Crud::PAGE_INDEX, $approveAction)
             ->add(Crud::PAGE_DETAIL, $viewAction)
-            ->add(Crud::PAGE_DETAIL, $approveAction)
-            ;
+            ->add(Crud::PAGE_DETAIL, $approveAction);
         /*$viewAction = function() {
             return Action::new('view')
                 ->linkToUrl(function(Question $question) {
@@ -218,8 +244,7 @@ class QuestionCrudController extends AbstractCrudController
         AdminContext $adminContext,
         EntityManagerInterface $entityManager,
         AdminUrlGenerator $adminUrlGenerator
-    ): RedirectResponse
-    {
+    ): RedirectResponse {
         // get the current entity
         $question = $adminContext->getEntity()->getInstance();
         if (!$question instanceof Question) {
@@ -236,6 +261,22 @@ class QuestionCrudController extends AbstractCrudController
             ->generateUrl();
 
         return $this->redirect($targetUrl);
+    }
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function export(AdminContext $context, CsvExporter $csvExporter): Response
+    {
+        $fields = FieldCollection::new($this->configureFields(Crud::PAGE_INDEX));
+        $filters = $this->container
+            ->get(FilterFactory::class)
+            ->create($context->getCrud()->getFiltersConfig(), $fields, $context->getEntity());
+        $queryBuilder = $this->createIndexQueryBuilder($context->getSearch(), $context->getEntity(), $fields, $filters);
+
+        $filename = 'questions_'.date('d-m-Y_H-i-s').'.csv';
+        return $csvExporter->createResponseFromQueryBuilder($queryBuilder, $fields, $filename);
     }
 
 
