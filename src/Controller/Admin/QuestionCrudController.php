@@ -11,6 +11,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
@@ -18,8 +19,9 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 
 #[IsGranted('ROLE_MODERATOR')]
@@ -133,11 +135,13 @@ class QuestionCrudController extends AbstractCrudController
 
         $approveAction = Action::new('approve')
             ->setTemplatePath('admin/approve_action.html.twig')
+            ->linkToCrudAction('approve')
             ->addCssClass('btn btn-success')
             ->setIcon('fa fa-check-circle')
             ->displayAsButton()
-            ->linkToCrudAction('approve')
-        ;
+            ->displayIf(static function (Question $question): bool {
+                return !$question->getIsApproved();
+            });
 
         return parent::configureActions($actions)
             // show the "delete" action only for not approved questions
@@ -207,6 +211,31 @@ class QuestionCrudController extends AbstractCrudController
             throw new \Exception('Deleting approved questions is forbidden!');
         }
         parent::deleteEntity($entityManager, $entityInstance);
+    }
+
+
+    public function approve(
+        AdminContext $adminContext,
+        EntityManagerInterface $entityManager,
+        AdminUrlGenerator $adminUrlGenerator
+    ): RedirectResponse
+    {
+        // get the current entity
+        $question = $adminContext->getEntity()->getInstance();
+        if (!$question instanceof Question) {
+            throw new \LogicException('Currently Question object is not an instance of Question?');
+        }
+
+        $question->setIsApproved(true);
+        $entityManager->flush();
+
+        $targetUrl = $adminUrlGenerator
+            ->setController(self::class)
+            ->setAction(Crud::PAGE_DETAIL)
+            ->setEntityId($question->getId())
+            ->generateUrl();
+
+        return $this->redirect($targetUrl);
     }
 
 
