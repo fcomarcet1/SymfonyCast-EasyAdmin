@@ -111,15 +111,6 @@ class QuestionCrudController extends AbstractCrudController
 
     public function configureActions(Actions $actions): Actions
     {
-        $viewAction = Action::new('view')
-            ->linkToUrl(function(Question $question) {
-                return $this->generateUrl('app_question_show', [
-                    'slug' => $question->getSlug(),
-                ]);
-            })
-            ->addCssClass('btn btn-success')
-            ->setIcon('fa fa-eye')
-            ->setLabel('View on site');
         /*$viewAction = Action::new('view')
             ->linkToUrl(function(Question $question) {
                 return $this->generateUrl('app_question_show', [
@@ -130,6 +121,23 @@ class QuestionCrudController extends AbstractCrudController
             ->setIcon('fa fa-eye')
             ->setLabel('View on site')
         ;*/
+        $viewAction = Action::new('view')
+            ->linkToUrl(function(Question $question) {
+                return $this->generateUrl('app_question_show', [
+                    'slug' => $question->getSlug(),
+                ]);
+            })
+            ->addCssClass('btn btn-success')
+            ->setIcon('fa fa-eye')
+            ->setLabel('View on site');
+
+        $approveAction = Action::new('approve')
+            ->setTemplatePath('admin/approve_action.html.twig')
+            ->addCssClass('btn btn-success')
+            ->setIcon('fa fa-check-circle')
+            ->displayAsButton()
+            ->linkToCrudAction('approve')
+        ;
 
         return parent::configureActions($actions)
             // show the "delete" action only for not approved questions
@@ -147,7 +155,9 @@ class QuestionCrudController extends AbstractCrudController
             ->setPermission(Action::NEW, 'ROLE_SUPER_ADMIN')
             ->setPermission(Action::BATCH_DELETE, 'ROLE_SUPER_ADMIN')
             ->add(Crud::PAGE_INDEX, $viewAction)
+            //->add(Crud::PAGE_INDEX, $approveAction)
             ->add(Crud::PAGE_DETAIL, $viewAction)
+            ->add(Crud::PAGE_DETAIL, $approveAction)
             ;
         /*$viewAction = function() {
             return Action::new('view')
